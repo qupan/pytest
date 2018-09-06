@@ -76,8 +76,6 @@ class Kill(Logger):
         self.log.info("kill IEDriverServer success")
         os.system('taskkill /f /im chromedriver.exe')
         self.log.info("kill chromedriver success")
-        os.system('taskkill /f /im geckodriver.exe')
-        self.log.info("kill geckodriver success")
 
     def kill_browser(self):
         '''
@@ -87,13 +85,13 @@ class Kill(Logger):
         os.system('taskkill /f /im chrome.exe')
         os.system('taskkill /f /im iexplore.exe')
 
-class Base(Logger):
+class Page(Logger):
     '''
     在每个页面类常用的一些方法
     '''
 
     def __init__(self, browser, url):
-        Logger.__init__(self,'OA')
+        Logger.__init__(self,'Project')
         self.log = self.getlog()
         if browser=="ie":
             driver=webdriver.Ie()
@@ -104,6 +102,8 @@ class Base(Logger):
         self.driver = driver
         self.driver.get(url)
         self.log.info("Open url:'%s' success" % url)
+        self.driver.maximize_window()
+        self.log.info('maximize_window')
 
     def start(self):
         self.log.info('beginning of the test case')
@@ -177,6 +177,7 @@ class Base(Logger):
         '''
         self.driver.quit()
         self.log.info('close driver!')
+        self.kill_driver()
 
     def find_element(self, locator, timeout=10):
         '''
@@ -271,6 +272,42 @@ class Base(Logger):
         element = self.find_elements(locator)
         element[number].click()
         self.log.info("click element '%s', success" % locator[1])
+
+    def select_by_index(self, locator, index=0):
+        '''
+        下拉框，通过索引index是索引的第几个，默认从0开始
+        '''
+        element = self.find_element(locator)
+        Select(element).select_by_index(index)
+        self.log.info("select element '%s', success" % locator[1])
+
+    def select_by_value(self, locator, value):
+        '''
+        下拉框，通过value属性查找元素
+        '''
+        element = self.find_element(locator)
+        Select(element).select_by_value(value)
+        self.log.info("select element '%s', success" % locator[1])
+
+    def select_by_text(self, locator, text):
+        '''
+        下拉框，通过text属性查找元素
+        '''
+        element = self.find_element(locator)
+        Select(element).select_by_visible_text(text)
+        self.log.info("select element '%s', success" % locator[1])
+
+    def choose_file(self, locator, file_path):
+        """
+        上传文件，输入定位和文件地址
+        """
+        if not os.path.isfile(file_path):
+            raise ValueError("File '%s' does not exist on the local file "
+                             "system." % file_path)
+        element = self.find_element(locator)
+        self.log.info("find element '%s', success" % locator[1])
+        element.send_keys(file_path)
+        self.log.info("upload file '%s', success" % file_path)
 
     def double_click(self, locator):
         '''
@@ -486,19 +523,11 @@ class Base(Logger):
 
     def get_size(self, locator):
         '''
-        获取当前页面大小
+        获取当元素大小
         '''
         element = self.find_element(locator)
         self.log.info("get size success,by element '%s'." % locator[1])
         return element.size
-
-    def get_window_size(self):
-        '''
-        获取当前页面大小
-        '''
-        element = self.driver.get_window_size()
-        self.log.info("get size success,by element ")
-        return element
 
     def get_window_size(self):
         '''
@@ -634,7 +663,7 @@ class Base(Logger):
         js = 'document.querySelector('#id').click()'
         driver.execute_script(js)
         '''
-        element = self.find_element(('css selector','%s'%css))
+        element = self.find_element(('css','%s'%css))
         js = ("document.querySelector(\'%s\').value=\'%s\'"%(css,text))
         self.js_execute(js)
         self.log.info('js_input text: %s success , by %s'%(text,css))
@@ -650,7 +679,7 @@ class Base(Logger):
         self.js_execute(js)
         self.log.info('jquery_input text: %s success , by %s'%(text,css))
 
-    def js_scroll_top(self,number):
+    def js_scroll_Top(self,number):
         '''
         滚动到顶部
         '''
@@ -658,7 +687,7 @@ class Base(Logger):
         self.js_execute(js)
         self.log.info('Roll to the top!')
 
-    def js_scroll_end(self):
+    def js_scroll_End(self):
         '''
         滚动到底部
         '''
