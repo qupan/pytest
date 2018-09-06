@@ -13,6 +13,7 @@ import os,logging,time,datetime,re
 import os.path
 import pytest
 
+
 class Logger(object):
     '''
     日志信息类创建后class logger（object），在初始化方法中完成保存日志的路径，日志的级别，调用的文件
@@ -75,6 +76,8 @@ class Kill(Logger):
         self.log.info("kill IEDriverServer success")
         os.system('taskkill /f /im chromedriver.exe')
         self.log.info("kill chromedriver success")
+        os.system('taskkill /f /im geckodriver.exe')
+        self.log.info("kill geckodriver success")
 
     def kill_browser(self):
         '''
@@ -84,13 +87,13 @@ class Kill(Logger):
         os.system('taskkill /f /im chrome.exe')
         os.system('taskkill /f /im iexplore.exe')
 
-class Page(Logger):
+class Base(Logger):
     '''
     在每个页面类常用的一些方法
     '''
 
     def __init__(self, browser, url):
-        Logger.__init__(self,'Project')
+        Logger.__init__(self,'OA')
         self.log = self.getlog()
         if browser=="ie":
             driver=webdriver.Ie()
@@ -174,7 +177,6 @@ class Page(Logger):
         '''
         self.driver.quit()
         self.log.info('close driver!')
-        self.kill_driver()
 
     def find_element(self, locator, timeout=10):
         '''
@@ -484,11 +486,19 @@ class Page(Logger):
 
     def get_size(self, locator):
         '''
-        获取当元素大小
+        获取当前页面大小
         '''
         element = self.find_element(locator)
         self.log.info("get size success,by element '%s'." % locator[1])
         return element.size
+
+    def get_window_size(self):
+        '''
+        获取当前页面大小
+        '''
+        element = self.driver.get_window_size()
+        self.log.info("get size success,by element ")
+        return element
 
     def get_window_size(self):
         '''
@@ -624,7 +634,7 @@ class Page(Logger):
         js = 'document.querySelector('#id').click()'
         driver.execute_script(js)
         '''
-        element = self.find_element(('css','%s'%css))
+        element = self.find_element(('css selector','%s'%css))
         js = ("document.querySelector(\'%s\').value=\'%s\'"%(css,text))
         self.js_execute(js)
         self.log.info('js_input text: %s success , by %s'%(text,css))
@@ -640,7 +650,7 @@ class Page(Logger):
         self.js_execute(js)
         self.log.info('jquery_input text: %s success , by %s'%(text,css))
 
-    def js_scroll_Top(self,number):
+    def js_scroll_top(self,number):
         '''
         滚动到顶部
         '''
@@ -648,7 +658,7 @@ class Page(Logger):
         self.js_execute(js)
         self.log.info('Roll to the top!')
 
-    def js_scroll_End(self):
+    def js_scroll_end(self):
         '''
         滚动到底部
         '''
