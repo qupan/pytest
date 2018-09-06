@@ -11,7 +11,7 @@ from selenium import webdriver
 from time import sleep
 import os,logging,time,datetime,re
 import os.path
-
+import pytest
 
 class Logger(object):
     '''
