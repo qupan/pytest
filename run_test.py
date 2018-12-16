@@ -12,6 +12,6 @@ if __name__=="__main__":
 		'--tap-outdir=report/TAP',#使用tap指出存放目录
 		'--tap-combined',#将所有tap合并存放
 		'--junitxml=report/XML/%s report.xml'%name,#生成xml文件
-		# '--count=2', #全部用例运行两遍
+		'--count=2', #全部用例运行两遍
 		'--reruns=2',#失败的用例重新运行两遍
 		])
