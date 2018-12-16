@@ -5,17 +5,19 @@ import pytest
 
 class TestDemo:
 
-	def setup(self):
-		print('每个用例开始前执行')
-
-	def teardown(self):
-		print('每个用例结束后执行')
-
-	def setup_class(self):
+	@classmethod
+	def setup_class(cls):
 		print('所有用例之前执行')
 
-	def teardown_class(self):
-		print('所有用例之后执行')
+	@classmethod
+	def teardown_class(cls):
+		print('dddd')
+
+	def setup_method(self):
+		print('每个用例之前执行')
+
+	def teardown_method(self):
+		print('每个用例之后执行')
 
 	@pytest.mark.skip('ok')
 	@pytest.mark.ok
